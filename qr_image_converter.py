@@ -111,3 +111,6 @@ qr_to_image_interface = gr.Interface(
 # Launch the Gradio app with tabs for each function
 gr.TabbedInterface([image_to_qr_interface, qr_to_image_interface],
                    ["Image to QR Code", "QR Code to Image"]).launch(share=True)
+
+
+
