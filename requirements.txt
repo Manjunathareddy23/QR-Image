@@ -1,6 +1,6 @@
+streamlit
 gradio
 Pillow
 numpy
-pyzbar
+opencv-python
 segno
-streamlit
