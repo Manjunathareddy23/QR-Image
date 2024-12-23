@@ -1,6 +1,5 @@
-streamlit
 gradio
 Pillow
-numpy
-opencv-python-headless
 segno
+numpy
+pyzxing
