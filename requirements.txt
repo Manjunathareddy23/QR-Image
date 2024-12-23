@@ -2,5 +2,5 @@ streamlit
 gradio
 Pillow
 numpy
-opencv-python
+opencv-python-headless
 segno
