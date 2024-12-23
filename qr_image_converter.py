@@ -6,7 +6,7 @@ import base64
 import tempfile
 import segno  # For QR code generation
 import numpy as np
-import pyzbar.pyzbar as pyzbar  # For QR code decoding with pyzbar
+import cv2  # OpenCV for QR code decoding
 
 # Function to convert an image to base64 (for display purposes)
 def image_to_base64(image):
@@ -30,20 +30,20 @@ def generate_qr(data):
     except Exception as e:
         return f"QR code generation failed: {e}"
 
-# Function to decode a QR code from an uploaded image using pyzbar
+# Function to decode a QR code from an uploaded image using OpenCV
 def decode_qr(image):
-    # Convert PIL image to NumPy array (for pyzbar)
+    # Convert PIL image to NumPy array
     img_array = np.array(image)
 
-    # Convert RGB to BGR (pyzbar uses BGR format)
-    img_bgr = img_array[:, :, ::-1]
+    # Convert RGB to grayscale (for QR decoding)
+    gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
 
-    # Use pyzbar to detect and decode QR code
-    decoded_objects = pyzbar.decode(img_bgr)
+    # Use OpenCV QR code detector
+    detector = cv2.QRCodeDetector()
+    data, _, _ = detector.detectAndDecode(gray)
 
-    if decoded_objects:
-        # Return the data from the first decoded QR code (if multiple QR codes are present)
-        return decoded_objects[0].data.decode('utf-8')
+    if data:
+        return data
     else:
         return "No QR code detected"
 
