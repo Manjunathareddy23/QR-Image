@@ -17,19 +17,23 @@ def image_to_base64(image):
     return img_str
 
 # Function to generate a QR code for the image's file path or URL
-def generate_qr(data):
-    try:
-        # Generate the QR code with the file path or URL
-        qr = segno.make(data)
+import cv2  # OpenCV for QR code decoding
 
-        # Create a temporary file to save the QR code as PNG
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
-        qr.save(temp_file.name, scale=6)  # Save the QR code as a PNG file
+def decode_qr(image):
+    # Convert PIL image to OpenCV format (numpy array)
+    img_array = np.array(image)
 
-        # Return the path to the saved QR code file
-        return temp_file.name
-    except Exception as e:
-        return f"QR code generation failed: {e}"
+    # Initialize OpenCV QRCode detector
+    detector = cv2.QRCodeDetector()
+
+    # Detect and decode the QR code
+    data, points, _ = detector.detectAndDecode(img_array)
+
+    if points is not None and data:
+        return data  # Return the decoded data
+    else:
+        return "No QR code detected"
+
 
 # Function to decode a QR code from an uploaded image using pyzbar
 def decode_qr(image):
