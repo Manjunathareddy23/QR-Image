@@ -6,7 +6,7 @@ import base64
 import tempfile
 import segno  # For QR code generation
 import numpy as np
-import cv2  # OpenCV for QR code decoding
+from pyzxing import BarCodeReader  # Python wrapper for ZXing
 
 
 # Function to convert an image to base64 (for display purposes)
@@ -28,13 +28,15 @@ def generate_qr(data):
         return f"QR code generation failed: {e}"
 
 
-# Function to decode a QR code from an uploaded image using OpenCV
-def decode_qr(image):
-    img_array = np.array(image)
-    gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
-    detector = cv2.QRCodeDetector()
-    data, _, _ = detector.detectAndDecode(gray)
-    return data if data else "No QR code detected"
+# Function to decode a QR code from an uploaded image using ZXing
+def decode_qr_with_zxing(image):
+    reader = BarCodeReader()
+    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
+    image.save(temp_file.name)  # Save the uploaded image temporarily
+    result = reader.decode(temp_file.name)  # Decode using ZXing
+    if result and "parsed" in result[0]:
+        return result[0]["parsed"]  # Extract decoded data
+    return "No QR code detected"
 
 
 # Function to handle image upload and generate QR code
@@ -51,12 +53,13 @@ def handle_image_to_qr(image):
 
 # Function to handle QR code decoding and display original image
 def handle_qr_to_image(qr_image):
-    decoded_data = decode_qr(qr_image)
+    decoded_data = decode_qr_with_zxing(qr_image)
     if "No QR code detected" in decoded_data:
         return decoded_data
-    if os.path.exists(decoded_data):
-        return Image.open(decoded_data)
     try:
+        # Attempt to load decoded data as an image if it's base64 or a file path
+        if os.path.exists(decoded_data):
+            return Image.open(decoded_data)
         img_data = base64.b64decode(decoded_data)
         return Image.open(io.BytesIO(img_data))
     except Exception as e:
