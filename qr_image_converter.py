@@ -4,55 +4,46 @@ from PIL import Image
 import io
 import base64
 import tempfile
-import segno  # For QR code generation
-from pyzxing import BarCodeReader  # Python wrapper for ZXing
+import segno
+from pyzxing import BarCodeReader
+import asyncio
 
+# Ensure the event loop is properly initialized
+if asyncio.get_event_loop().is_closed():
+    asyncio.set_event_loop(asyncio.new_event_loop())
 
-# Function to convert an image to base64 (for display purposes)
-def image_to_base64(image):
-    buffered = io.BytesIO()
-    image.save(buffered, format="PNG")
-    img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
-    return img_str
-
-
-# Function to generate a QR code for the image's file path or URL
 def generate_qr(data):
     try:
         qr = segno.make(data)
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
-        qr.save(temp_file.name, scale=6)  # Save the QR code as a PNG file
+        qr.save(temp_file.name, scale=6)
+        temp_file.close()
         return temp_file.name
     except Exception as e:
         return f"QR code generation failed: {e}"
 
-
-# Function to decode a QR code from an uploaded image using ZXing
 def decode_qr_with_zxing(image):
     try:
         reader = BarCodeReader()
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
-        image.save(temp_file.name)  # Save the uploaded image temporarily
-        result = reader.decode(temp_file.name)  # Decode using ZXing
+        image.save(temp_file.name)
+        result = reader.decode(temp_file.name)
+        os.unlink(temp_file.name)
         if result and "parsed" in result[0]:
-            return result[0]["parsed"]  # Extract decoded data
+            return result[0]["parsed"]
         return "No QR code detected"
     except Exception as e:
         return f"QR code decoding failed: {e}"
 
-
-# Function to handle image upload and generate QR code
 def handle_image_to_qr(image):
     try:
-        image_path = generate_qr(image.filename)  # Use the file's path for QR code generation
+        image_path = generate_qr(image.filename)
         if "failed" in image_path:
             return image_path
         return Image.open(image_path)
     except Exception as e:
         return f"Error processing image to QR: {e}"
 
-
-# Function to handle QR code decoding and display original data
 def handle_qr_to_data(qr_image):
     try:
         decoded_data = decode_qr_with_zxing(qr_image)
@@ -60,8 +51,6 @@ def handle_qr_to_data(qr_image):
     except Exception as e:
         return f"Error processing QR to data: {e}"
 
-
-# Create Gradio interfaces
 image_to_qr_interface = gr.Interface(
     fn=handle_image_to_qr,
     inputs=gr.Image(type="pil", label="Upload Image", image_mode="RGB"),
@@ -74,8 +63,7 @@ qr_to_data_interface = gr.Interface(
     outputs=gr.Textbox(label="Decoded Data"),
 )
 
-# Launch Gradio app
 gr.TabbedInterface(
     [image_to_qr_interface, qr_to_data_interface],
     ["Image to QR Code", "QR Code to Data"]
-).launch(share=True)
+).launch(share=True, server_name="0.0.0.0")
