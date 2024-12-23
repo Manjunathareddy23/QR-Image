@@ -1,5 +1,5 @@
-gradio
-Pillow
-segno
-numpy
-pyzxing
+gradio==3.27.0
+Pillow==9.3.0
+segno==1.6.0
+pyzxing==0.1.9
+streamlit
