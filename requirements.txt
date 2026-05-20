@@ -1,6 +1,3 @@
 gradio
-Pillow
+pillow
 segno
-pyzxing
-streamlit
-pyzbar
