@@ -19,9 +19,7 @@ def image_to_qr(image):
     image_path = os.path.join(UPLOAD_FOLDER, filename)
     image.save(image_path)
 
-    # IMPORTANT:
-    # Replace this with your deployed HuggingFace URL
-    
+    # Correct public URL for Hugging Face + Gradio
     public_url = f"https://mistermanju01-qr-image.hf.space/gradio_api/file={image_path}"
 
     # Generate QR code
@@ -29,6 +27,7 @@ def image_to_qr(image):
 
     # Save QR image
     temp_qr = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
+
     qr.save(temp_qr.name, scale=8)
 
     return temp_qr.name, public_url
@@ -46,4 +45,6 @@ interface = gr.Interface(
     description="Upload any image and generate a QR code that opens the image when scanned."
 )
 
-interface.launch()
+interface.launch(server_name="0.0.0.0",
+                allowed_paths=["uploaded_images"]
+                )
