@@ -21,7 +21,7 @@ def image_to_qr(image):
 
     # IMPORTANT:
     # Replace this with your deployed HuggingFace URL
-    public_url = f"https://YOUR-SPACE-NAME.hf.space/file={UPLOAD_FOLDER}/{filename}"
+    public_url = f"https://mistermanju01-qr-image.hf.space/file={UPLOAD_FOLDER}/{filename}"
 
     # Generate QR code
     qr = segno.make(public_url)
