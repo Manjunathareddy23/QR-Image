@@ -3,3 +3,4 @@ Pillow
 segno
 pyzxing
 streamlit
+pyzbar
