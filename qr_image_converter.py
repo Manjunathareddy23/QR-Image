@@ -1,4 +1,4 @@
-%%writefile success.py
+#%%writefile success.py
 import os
 import gradio as gr
 from PIL import Image
